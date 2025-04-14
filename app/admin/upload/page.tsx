@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { LocationData } from '@/lib/type'
 
 export default function UploadLocationPage() {
   const [name, setName] = useState('')
@@ -11,7 +12,7 @@ export default function UploadLocationPage() {
   const [difficulty, setDifficulty] = useState('easy')
   const [imageUrl, setImageUrl] = useState('')
   const [status, setStatus] = useState('')
-  const [preview, setPreview] = useState<any>(null)
+  const [preview, setPreview] = useState<LocationData | null>(null)
 
   const handleUpload = async () => {
     setStatus('Uploading...')
@@ -45,8 +46,12 @@ export default function UploadLocationPage() {
       setLat('')
       setLng('')
       setImageUrl('')
-    } catch (err: any) {
-      setStatus('❌ Upload failed: ' + err.message)
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setStatus('❌ Upload failed: ' + err.message)
+      } else {
+        setStatus('❌ Upload failed: Unknown error occurred')
+      }
     }
   }
 

@@ -1,7 +1,7 @@
 import { db } from '@/lib/firestore'
 import { collection, addDoc } from 'firebase/firestore'
 import { NextResponse } from 'next/server'
-
+import { LocationData } from '@/lib/type'
 export async function POST(req: Request) {
   try {
     const body = await req.json()
@@ -11,7 +11,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    const data: any = {
+    const data: LocationData = {
       name,
       info,
       imageUrl,
@@ -28,7 +28,11 @@ export async function POST(req: Request) {
     await addDoc(collection(db, `locations_${difficulty}`), data)
 
     return NextResponse.json({ success: true, data })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return NextResponse.json({ error: err.message }, { status: 500 })
+    } else {
+      return NextResponse.json({ error: 'Unknown error occurred' }, { status: 500 })
+    }
   }
 }
