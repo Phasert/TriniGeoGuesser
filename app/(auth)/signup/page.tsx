@@ -38,12 +38,9 @@ export default function SignupPage() {
   }
 
   return (
-    <section className="relative min-h-screen bg-gradient-to-br from-black via-red-700 to-white flex items-center justify-center px-4 py-12 overflow-hidden">
-      <div className="absolute text-[250px] md:text-[400px] opacity-5 font-extrabold text-white pointer-events-none select-none z-0">
-        🇹🇹
-      </div>
+    <section className="relative min-h-screen bg-[url('/images/signupBG.jpg')] bg-cover bg-center flex items-center justify-center px-4 py-12 overflow-hidden">
 
-      <div className="z-10 w-full max-w-md bg-white/90 backdrop-blur-md rounded-xl p-8 shadow-2xl border border-red-300">
+      <div className="z-10 w-full max-w-md bg-white rounded-xl p-8 shadow-2xl border border-red-300">
         <div className="text-center mb-6">
           <h1 className="text-3xl font-extrabold text-red-600 tracking-tight drop-shadow-md">
             Create Your TriniGeo Account

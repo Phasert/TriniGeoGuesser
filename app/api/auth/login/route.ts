@@ -1,33 +1,41 @@
 import { auth, db } from '@/lib/firestore'
 import { signInWithEmailAndPassword } from 'firebase/auth'
-import { doc, getDoc, updateDoc } from 'firebase/firestore'
+import { collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore'
 import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
-  const { email, password } = await req.json()
+  const { username, password } = await req.json()
 
   try {
-    const userCred = await signInWithEmailAndPassword(auth, email, password)
+    
+    const usersRef = collection(db, 'users')
+    const q = query(usersRef, where('username', '==', username))
+    const snapshot = await getDocs(q)
 
+    if (snapshot.empty) {
+      return NextResponse.json({ error: 'This account does not exist.' }, { status: 404 })
+    }
+
+    const userDoc = snapshot.docs[0]
+    const userData = userDoc.data()
+    const email = userData.email
+
+
+    const userCred = await signInWithEmailAndPassword(auth, email, password)
     const user = userCred.user
+
+    await user.reload()
 
     if (!user.emailVerified) {
       return NextResponse.json({ error: 'Email not verified.' }, { status: 401 })
     }
 
+    
     const userDocRef = doc(db, 'users', user.uid)
-    const userDocSnap = await getDoc(userDocRef)
+    await updateDoc(userDocRef, { verified: true })
 
-    if (!userDocSnap.exists()) {
-      return NextResponse.json({ error: 'User profile not found.' }, { status: 404 })
-    }
-
-    await updateDoc(userDocRef, {
-      verified: true
-    })
-
-    const userData = userDocSnap.data()
-
+ 
+    
     return NextResponse.json({
       message: 'Login successful.',
       user: {
@@ -36,13 +44,16 @@ export async function POST(req: Request) {
         username: userData.username,
         score: userData.score || 0,
         emailVerified: user.emailVerified,
+        
       },
     })
+
   } catch (err: unknown) {
     if (err instanceof Error) {
-      return NextResponse.json({ error: err.message }, { status: 500 })
-    } else {
-      return NextResponse.json({ error: 'Unknown error occurred' }, { status: 500 })
+      if (err.message.includes('auth/wrong-password')) {
+        return NextResponse.json({ error: 'Incorrect password.' }, { status: 401 })
+      }
     }
+    return NextResponse.json({ error: 'Login failed' }, { status: 500 })
   }
 }

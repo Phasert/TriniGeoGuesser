@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api'
 import { LocationData } from '@/lib/type'
+import { useRouter } from 'next/navigation'
+import { useAuthStore } from '@/lib/store/useAuthStore'
 
 type Difficulty = 'easy' | 'medium' | 'hard'
 
@@ -23,13 +25,37 @@ export default function GamePage() {
   const [distance, setDistance] = useState<number | null>(null)
   const [mapCenter, setMapCenter] = useState(defaultCenter)
   const [mapKey, setMapKey] = useState(0)
+  const [isAuthReady, setIsAuthReady] = useState(false)
 
   const [timeLeft, setTimeLeft] = useState(300)
   const [timerStarted, setTimerStarted] = useState(false)
+  const router = useRouter()
+  const { user } = useAuthStore()
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
   })
+
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsAuthReady(true)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [])
+
+  
+  useEffect(() => {
+    if (isAuthReady) {
+      if (!user) {
+        alert('You need to login to access this page')
+        router.push('/login')
+      } else if (!user.emailVerified) {
+        alert('You need to verify your email first')
+        router.push('/verify-email')
+      }
+    }
+  }, [user, router, isAuthReady])
 
   const fetchLocation = async () => {
     if (!mode) return
@@ -50,12 +76,13 @@ export default function GamePage() {
   }
 
   useEffect(() => {
-    fetchLocation()
-    if (mode) {
+    
+    if (mode && user) {
+      fetchLocation()
       setTimeLeft(300)
       setTimerStarted(true)
     }
-  }, [mode])
+  }, [mode, user])
 
   useEffect(() => {
     if (!timerStarted || timeLeft <= 0) return
@@ -82,14 +109,16 @@ export default function GamePage() {
           actual: location.coordinates,
         }),
       })
-
+  
       const data = await res.json()
       setDistance(data.distance)
+
       setConfirmed(true)
       setRevealed(true)
+
     }
   }
-
+  
   const renderTimer = () => {
     const radius = 40
     const circumference = 2 * Math.PI * radius
@@ -137,7 +166,10 @@ export default function GamePage() {
     )
   }
 
-  if (!isLoaded) return <div>Loading Map...</div>
+  
+  if (!isAuthReady || !isLoaded) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+  }
 
   return (
     <div className="min-h-screen mx-auto relative">

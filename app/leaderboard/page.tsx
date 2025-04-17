@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import Confetti from 'react-confetti'
 import { useWindowSize } from 'react-use'
 import { LogOut, Info } from 'lucide-react'
-
+import { useRouter } from 'next/navigation'
+import { useAuthStore } from '@/lib/store/useAuthStore'
 
 type Difficulty = 'easy' | 'medium' | 'hard'
 
@@ -28,20 +29,43 @@ const leaderboardData = {
 
 const triniFacts = [
   'Maracas Bay is famous for bake & shark 🍞🦈',
-  'Doubles is Trinidad’s #1 breakfast 🌶️',
+  'Doubles is Trinidad\'s #1 breakfast 🌶',
   'The steelpan was invented in T&T 🥁',
   'Trinidad Carnival is the greatest show on earth 🎭',
   'We drive on the left but vibe on the right 🚗😎',
 ]
+
+
 
 export default function LeaderboardPage() {
   const [selectedMode, setSelectedMode] = useState<Difficulty>('easy')
   const [showConfetti, setShowConfetti] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [factIndex, setFactIndex] = useState(0)
+  const [isAuthReady, setIsAuthReady] = useState(false)
   const { width, height } = useWindowSize()
+  const { user, logout } = useAuthStore()
+  const router = useRouter()
 
   const leaderboard = leaderboardData[selectedMode]
+
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsAuthReady(true)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [])
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+      router.push('/login')
+    } catch (err) {
+      console.error('Error logging out:', err)
+    }
+  }
+  
 
   useEffect(() => {
     setShowConfetti(true)
@@ -49,6 +73,23 @@ export default function LeaderboardPage() {
     const timer = setTimeout(() => setShowConfetti(false), 4000)
     return () => clearTimeout(timer)
   }, [selectedMode])
+
+  useEffect(() => {
+    if (isAuthReady) {
+      if (!user) {
+        alert('You need to login to access this page')
+        router.push('/login')
+      } else if (!user.emailVerified) {
+        alert('You need to verify your email first')
+        router.push('/verify-email')
+      }
+    }
+  }, [user, router, isAuthReady])
+
+  
+  if (!isAuthReady) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+  }
 
   return (
     <div className="min-h-screen bg-[url('/images/bg.png')] bg-cover bg-fixed bg-center px-4 py-8 text-gray-800">
@@ -62,10 +103,20 @@ export default function LeaderboardPage() {
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white drop-shadow-md">TriniGeo</h1>
         </div>
-        <button className="flex items-center gap-2 text-sm px-4 py-2 text-white bg-black/30 rounded-md hover:bg-black/50 transition">
-          <LogOut className="w-4 h-4" />
-          Log Out
-        </button>
+        <div className="flex items-center gap-4">
+          {user && (
+            <div className="hidden sm:flex items-center bg-black/30 rounded-md px-3 py-1.5 text-white">
+              <span className="mr-1 font-medium">Welcome,</span>
+              <span className="font-semibold">{user.username}</span>
+            </div>
+          )}
+          <button 
+           onClick={handleLogout}
+          className="flex items-center gap-2 text-sm px-4 py-2 text-white bg-black/30 rounded-md hover:bg-black/50 transition">
+            <LogOut className="w-4 h-4" />
+            Log Out
+          </button>
+        </div>
       </div>
 
       <div className="max-w-3xl mx-auto bg-white/90 backdrop-blur-xl border border-red-100 rounded-3xl shadow-xl p-6 sm:p-10">
