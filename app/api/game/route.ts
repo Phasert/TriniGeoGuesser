@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { collection, getDocs } from 'firebase/firestore'
+import { collection, getDocs, serverTimestamp, query, where, updateDoc, doc, setDoc } from 'firebase/firestore'
 import { db } from '@/lib/firestore'
 
 export async function POST(req: NextRequest) {
   try {
-    const { type, mode, guess, actual } = await req.json()
+    const { type, mode, guess, actual, score, username, exclude } = await req.json()
 
     if (type === 'fetch') {
       if (!mode) {
@@ -12,9 +12,22 @@ export async function POST(req: NextRequest) {
       }
 
       const snapshot = await getDocs(collection(db, `locations_${mode}`))
-      const docs = snapshot.docs.map((doc) => doc.data())
-      const random = docs[Math.floor(Math.random() * docs.length)]
+      let docs = snapshot.docs.map((doc) => {
+        const data = doc.data()
+        return { ...data, id: doc.id }
+      })
+      
+     
+      if (exclude && Array.isArray(exclude) && exclude.length > 0) {
+        docs = docs.filter(doc => !exclude.includes(doc.id))
+      }
+      
+      
+      if (docs.length === 0) {
+        return NextResponse.json({ error: 'No more unique locations available' }, { status: 404 })
+      }
 
+      const random = docs[Math.floor(Math.random() * docs.length)]
       return NextResponse.json({ location: random })
     }
 
@@ -31,6 +44,43 @@ export async function POST(req: NextRequest) {
       )
 
       return NextResponse.json({ distance: dist })
+    }
+
+    if (type === 'saveScore') {
+      if (!mode || score === undefined || !username) {
+        return NextResponse.json({ error: 'Missing required data' }, { status: 400 })
+      }
+
+     
+      const userScoreQuery = query(
+        collection(db, `scores_${mode}`),
+        where('username', '==', username)
+      )
+      
+      const userScoreSnapshot = await getDocs(userScoreQuery)
+      
+      if (userScoreSnapshot.empty) {
+        await setDoc(doc(collection(db, `scores_${mode}`), username), {
+          username,
+          score,
+          timestamp: serverTimestamp()
+        })
+        return NextResponse.json({ success: true, message: 'Score saved' })
+      } else {
+       
+        const existingDoc = userScoreSnapshot.docs[0]
+        const existingScore = existingDoc.data().score || 0
+        
+        if (score > existingScore) {
+          await updateDoc(existingDoc.ref, {
+            score,
+            timestamp: serverTimestamp()
+          })
+          return NextResponse.json({ success: true, message: 'High score updated' })
+        } else {
+          return NextResponse.json({ success: true, message: 'No update needed' })
+        }
+      }
     }
 
     return NextResponse.json({ error: 'Invalid request type' }, { status: 400 })
