@@ -7,7 +7,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-red-100 to-white flex items-center justify-center px-4 py-16">
       <div className="max-w-3xl w-full text-center space-y-8 bg-white/90 rounded-2xl shadow-xl p-10 border border-red-100">
         <h1 className="text-4xl md:text-5xl font-extrabold text-red-600 drop-shadow">
-          🇹🇹 Welcome to <span className="text-green-600">Trini</span><span className= "text-red-600">Geo</span>
+          Welcome to <span className="text-green-600">Trini</span><span className= "text-red-600">Geo</span>
         </h1>
 
         <p className="text-gray-700 text-lg md:text-xl font-medium">
