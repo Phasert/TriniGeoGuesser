@@ -23,7 +23,7 @@ export default function GamePage() {
   const [revealed, setRevealed] = useState(false)
   const [showHint, setShowHint] = useState(false)
   const [distance, setDistance] = useState<number | null>(null)
-  const [mapCenter, s across most pc devices etMapCenter] = useState(defaultCenter)
+  const [mapCenter, setMapCenter] = useState(defaultCenter)
   const [mapKey, setMapKey] = useState(0)
   const [score, setScore] = useState(0)
   const [isAuthReady, setIsAuthReady] = useState(false)
