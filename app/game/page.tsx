@@ -23,7 +23,7 @@ export default function GamePage() {
   const [revealed, setRevealed] = useState(false)
   const [showHint, setShowHint] = useState(false)
   const [distance, setDistance] = useState<number | null>(null)
-  const [mapCenter, setMapCenter] = useState(defaultCenter)
+  const [mapCenter, s across most pc devices etMapCenter] = useState(defaultCenter)
   const [mapKey, setMapKey] = useState(0)
   const [score, setScore] = useState(0)
   const [isAuthReady, setIsAuthReady] = useState(false)
@@ -277,14 +277,14 @@ export default function GamePage() {
       
       {!mode ? (
         <div className="min-h-screen w-screen bg-[url('/images/game/mode_bg.png')] bg-cover bg-center bg-no-repeat flex items-center justify-center text-center">
-          <div className="space-y-6">
-            <h1 className="text-4xl font-extrabold text-white drop-shadow">Choose Yuh Mode</h1>
+          <div className="space-y-6 max-w-4xl w-full px-6">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-white drop-shadow">Choose Yuh Mode</h1>
             <div className="flex gap-6 flex-wrap justify-center">
               {(['easy', 'medium', 'hard'] as Difficulty[]).map((m) => (
                 <button
                   key={m}
                   onClick={() => setMode(m)}
-                  className={`px-8 py-4 text-lg rounded-full font-bold text-white shadow-md transition-all duration-300 transform hover:scale-110 hover:shadow-2xl ${
+                  className={`px-8 py-4 text-lg md:text-xl rounded-full font-bold text-white shadow-md transition-all duration-300 transform hover:scale-110 hover:shadow-2xl ${
                     m === 'easy'
                       ? 'bg-green-500 hover:bg-green-600'
                       : m === 'medium'
@@ -306,7 +306,7 @@ export default function GamePage() {
           </div>
         </div>
       ) : gameOver ? (
-        <div className="min-h-screen bg-[url('/images/game/end_bg.png')] bg-cover bg-center bg-no-repeat  flex items-center justify-center bg-gray-100">
+        <div className="min-h-screen bg-[url('/images/game/end_bg.png')] bg-cover bg-center bg-no-repeat flex items-center justify-center bg-gray-100">
           <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center">
             <h2 className="text-3xl font-bold text-red-600 mb-4">Time&apos;s Up!</h2>
             <p className="text-xl mb-2">Your final score: <span className="font-bold text-2xl">{score}</span></p>
@@ -355,30 +355,32 @@ export default function GamePage() {
         </div>
       ) : location ? (
         <>
-          {renderTimer()}
-          <div className="absolute top-4 left-4 z-50">
-            <div className="w-24 h-24 rounded-full bg-red-600 text-white flex flex-col items-center justify-center shadow-md">
-              <span className="text-sm font-semibold">Score</span>
-              <span className="text-2xl font-bold">{score}</span>
+          <div className="fixed top-4 right-4 z-50">
+            {renderTimer()}
+          </div>
+          <div className="fixed top-4 left-4 z-50">
+            <div className="w-20 h-20 rounded-full bg-red-600 text-white flex flex-col items-center justify-center shadow-md">
+              <span className="text-xs font-semibold">Score</span>
+              <span className="text-xl font-bold">{score}</span>
             </div>
           </div>
-          <div className="p-6 space-y-6 max-w-6xl mx-auto">
-            <h1 className="text-2xl font-bold text-red-700 capitalize">{mode} Mode</h1>
-            <p className="text-gray-700 mb-4">Guess where this place is in sweet T&T!</p>
+          <div className="p-4 md:p-6 space-y-6 max-w-6xl mx-auto pt-24">
+            <h1 className="text-2xl md:text-3xl font-bold text-red-700 capitalize pl-28 md:pl-0">{mode} Mode</h1>
+            <p className="text-gray-700 mb-4 text-base md:text-lg pl-28 md:pl-0">Guess where this place is in sweet T&T!</p>
 
-            <div className="flex flex-col md:flex-row gap-6 justify-center items-start">
-              <div className="w-full md:w-1/2 rounded-xl overflow-hidden shadow-md">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center items-start">
+              <div className="w-full rounded-xl overflow-hidden shadow-md">
                 <img
                   src={location.imageUrl}
                   alt="Clue"
-                  className="w-full h-[300px] object-cover rounded-xl"
+                  className="w-full h-[250px] md:h-[300px] object-cover rounded-xl"
                 />
               </div>
 
               {revealed && (
-                <div className="w-full md:w-1/2 bg-white border rounded-xl p-6 shadow space-y-4">
+                <div className="w-full bg-white border rounded-xl p-6 shadow space-y-4">
                   <h2 className="text-2xl font-bold text-red-700">{location.name}</h2>
-                  <p className="text-gray-800">{location.info}</p>
+                  <p className="text-gray-800 text-sm md:text-base">{location.info}</p>
                   <p className="text-sm text-gray-600 mt-2 flex items-center gap-2">
                     <span>🧭</span> Distance from guess: {distance?.toFixed(2)} km
                   </p>
@@ -414,15 +416,22 @@ export default function GamePage() {
               </GoogleMap>
             </div>
 
-            <div className="flex justify-center gap-4 mt-4 flex-wrap">
-              {!confirmed && userGuess && (
+            <div className="flex justify-center gap-4 mt-6 flex-wrap">
+              {!confirmed && userGuess ? (
                 <button
                   onClick={handleConfirmGuess}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold"
                 >
                   Confirm Guess
                 </button>
-              )}
+              ) : revealed ? (
+                <button
+                  onClick={fetchLocation}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold"
+                >
+                  Next
+                </button>
+              ) : null}
               <button
                 onClick={handleSkip}
                 className="bg-gray-300 hover:bg-gray-400 text-black px-6 py-3 rounded-lg font-semibold"
@@ -435,19 +444,11 @@ export default function GamePage() {
               >
                 Exit
               </button>
-              {revealed && (
-                <button
-                  onClick={fetchLocation}
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold"
-                >
-                  Next
-                </button>
-              )}
             </div>
           </div>
         </>
       ) : (
-        <div>Loading location...</div>
+        <div className="min-h-screen flex items-center justify-center text-lg md:text-xl font-semibold">Loading location...</div>
       )}
 
       {showExitModal && (
