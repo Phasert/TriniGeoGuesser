@@ -1,6 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAuthStore } from '@/lib/store/useAuthStore'
 import { LocationData } from '@/lib/type'
 
 export default function UploadLocationPage() {
@@ -13,6 +15,29 @@ export default function UploadLocationPage() {
   const [imageUrl, setImageUrl] = useState('')
   const [status, setStatus] = useState('')
   const [preview, setPreview] = useState<LocationData | null>(null)
+  const [isAuthReady, setIsAuthReady] = useState(false)
+  const { user, isUserAdmin } = useAuthStore()
+  const router = useRouter()
+
+ 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsAuthReady(true)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    if (isAuthReady) {
+      if (!user) {
+        alert('You need to login to access this page')
+        router.push('/login')
+      } else if (!isUserAdmin()) {
+        alert('You do not have permission to access this page')
+        router.push('/leaderboard')
+      }
+    }
+  }, [user, router, isAuthReady, isUserAdmin])
 
   const handleUpload = async () => {
     setStatus('Uploading...')
@@ -53,6 +78,10 @@ export default function UploadLocationPage() {
         setStatus('❌ Upload failed: Unknown error occurred')
       }
     }
+  }
+
+  if (!isAuthReady || !user || !isUserAdmin()) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
   }
 
   return (

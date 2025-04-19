@@ -1,6 +1,6 @@
 import { auth, db } from '@/lib/firestore'
 import { signInWithEmailAndPassword } from 'firebase/auth'
-import { collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore'
+import { collection, query, where, getDocs, updateDoc, doc, getDoc } from 'firebase/firestore'
 import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
@@ -20,7 +20,6 @@ export async function POST(req: Request) {
     const userData = userDoc.data()
     const email = userData.email
 
-
     const userCred = await signInWithEmailAndPassword(auth, email, password)
     const user = userCred.user
 
@@ -33,19 +32,23 @@ export async function POST(req: Request) {
     
     const userDocRef = doc(db, 'users', user.uid)
     await updateDoc(userDocRef, { verified: true })
+    
 
- 
+    const updatedUserDoc = await getDoc(userDocRef)
+    const updatedUserData = updatedUserDoc.data()
+
+    const responseUser = {
+      uid: user.uid,
+      email: user.email,
+      username: userData.username,
+      score: userData.score || 0,
+      emailVerified: user.emailVerified,
+      isAdmin: updatedUserData?.isAdmin === true
+    }
     
     return NextResponse.json({
       message: 'Login successful.',
-      user: {
-        uid: user.uid,
-        email: user.email,
-        username: userData.username,
-        score: userData.score || 0,
-        emailVerified: user.emailVerified,
-        
-      },
+      user: responseUser
     })
 
   } catch (err: unknown) {

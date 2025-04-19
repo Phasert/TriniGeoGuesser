@@ -11,10 +11,12 @@ export default function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault()
     setError('')
+    setIsSubmitting(true)
 
     const res = await fetch('/api/auth/login', {
       method: 'POST',
@@ -26,15 +28,25 @@ export default function LoginPage() {
 
     if (!res.ok) {
       setError(data.error || 'Login failed')
+      setIsSubmitting(false)
     } else {
-      setUser(data.user)
+      const user = {
+        uid: data.user.uid,
+        email: data.user.email,
+        username: data.user.username,
+        score: data.user.score || 0,
+        emailVerified: data.user.emailVerified,
+        isAdmin: data.user.isAdmin === true
+      }
+      
+      setUser(user)
       router.push('/leaderboard')
     }
   }
 
   return (
     <div className="min-h-screen bg-[url('/images/loginBG.jpg')] bg-cover bg-center flex items-center justify-center">
-  <div className="bg-white backdrop-blur-md p-8 rounded-xl shadow-xl w-full max-w-md">
+      <div className="bg-white backdrop-blur-md p-8 rounded-xl shadow-xl w-full max-w-md">
         <h1 className="text-3xl font-bold text-center text-red-600 mb-6">TriniGeo Login</h1>
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
@@ -64,9 +76,10 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg"
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg transition-transform duration-150 active:scale-95"
+            disabled={isSubmitting}
           >
-            Login
+            {isSubmitting ? 'Logging In...' : 'Login'}
           </button>
         </form>
 

@@ -41,11 +41,9 @@ export async function POST(req: Request) {
 
   
     await setDoc(doc(db, 'users', userCred.user.uid), {
-      uid: userCred.user.uid,
       email,
       username,
       createdAt: new Date().toISOString(),
-      score: 0,
       verified: false,
       isAdmin: false,
     })
@@ -53,7 +51,6 @@ export async function POST(req: Request) {
     return NextResponse.json({
       message: 'User created. Verification email sent.',
       user: {
-        uid: userCred.user.uid,
         email,
         username,
         emailVerified: userCred.user.emailVerified,

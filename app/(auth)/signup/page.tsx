@@ -11,13 +11,16 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [username, setUsername] = useState('')
   const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSignup = async (e: FormEvent) => {
     e.preventDefault()
     setError('')
+    setIsSubmitting(true)
 
     if (password !== confirmPassword) {
       setError('Passwords do not match')
+      setIsSubmitting(false)
       return
     }
 
@@ -31,6 +34,7 @@ export default function SignupPage() {
 
     if (!res.ok) {
       setError(data.error || 'Signup failed')
+      setIsSubmitting(false)
     } else {
       alert('Check yuh email and verify before logging in.')
       router.push('/login')
@@ -99,8 +103,9 @@ export default function SignupPage() {
           <button
             type="submit"
             className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg transition-transform duration-150 active:scale-95"
+            disabled={isSubmitting}
           >
-            Sign Up
+            {isSubmitting ? 'Signing up...' : 'Sign Up'}
           </button>
         </form>
 

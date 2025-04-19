@@ -34,6 +34,7 @@ export default function LeaderboardPage() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [showMore, setShowMore] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
   const { width, height } = useWindowSize()
   const { user, logout } = useAuthStore()
   const router = useRouter()
@@ -48,8 +49,9 @@ export default function LeaderboardPage() {
 
   const handleLogout = async () => {
     try {
+      setIsLoggingOut(true)
       await logout()
-      router.push('/login')
+      router.push('/')
     } catch (err) {
       console.error('Error logging out:', err)
     }
@@ -98,15 +100,15 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     if (isAuthReady) {
-      if (!user) {
+      if (!user && !isLoggingOut) {
         alert('You need to login to access this page')
         router.push('/login')
-      } else if (!user.emailVerified) {
+      } else if (user && !user.emailVerified) {
         alert('You need to verify your email first')
         router.push('/verify-email')
       }
     }
-  }, [user, router, isAuthReady])
+  }, [user, router, isAuthReady, isLoggingOut])
 
 
   const topEntries = leaderboard.slice(0, 5);
