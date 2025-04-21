@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Trini Geo
 
-## Getting Started
+## About 
 
-First, run the development server:
+Trini Geo is an interactive web-based geography game focused on Trinidad and Tobago. This project aims to help people become more familiar with locations around Trinidad through a fun, engaging game experience.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Authentication System**: Only registered users can play the game
+- **Multiple Difficulty Levels**:
+  - Easy Mode (5km radius + hints)
+  - Medium Mode (2.5km radius)
+  - Hard Mode (1km radius)
+- **Timed Rounds**: Test your knowledge under pressure
+- **Live Google Maps Integration**: Place your guess on a real map
+- **Real-time Leaderboards**: See how you rank against other players
+- **Location Information**: Learn facts about each location after guessing
+- **Admin Upload Feature**: Administrators can add new locations
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Technologies Used
 
-## Learn More
+- Next.js (React framework)
+- Firebase (Authentication and Database)
+- Google Maps API
+- Vercel (Deployment)
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This project is deployed using Vercel. Any changes pushed to the main branch will automatically be deployed.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## How to Play
 
-## Deploy on Vercel
+1. Create an account or log in
+2. Press the "Play" button to start the game
+3. Choose a difficulty level
+4. Look at the photograph shown
+5. Place your guess on the map
+6. Submit your answers before the timer runs out
+7. See how close you were and learn about the location
+8. Continue to the next round or see if you're on the leaderboard
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
